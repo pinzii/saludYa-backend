@@ -16,15 +16,15 @@ export class AppointmentsController {
 
   // 1. Persistir una nueva cita (POST)
   @Post()
-  create(@Body() createAppointmentDto: CreateAppointmentDto) {
-    return this.appointmentsService.create(createAppointmentDto);
+  async create(@Body() createAppointmentDto: CreateAppointmentDto) {
+    return await this.appointmentsService.create(createAppointmentDto);
   }
 
   // 2. Obtener todas las citas (GET)
 
   @Get()
-  findAll() {
-    return this.appointmentsService.findAll();
+  async findAll() {
+    return await this.appointmentsService.findAll();
   }
 
   // 3. Reagendar una cita (PUT)
