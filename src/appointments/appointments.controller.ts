@@ -4,11 +4,12 @@ import {
   Post,
   Body,
   Param,
-  Put,
   Delete,
+  Put,
 } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
+import { Appointment } from './entities/appointment.entity';
 
 @Controller('appointments')
 export class AppointmentsController {
@@ -30,11 +31,11 @@ export class AppointmentsController {
   // 3. Reagendar una cita (PUT)
   // Recibe el ID de la cita y los nuevos datos de fecha/hora
   @Put(':id')
-  update(
+  async update(
     @Param('id') id: string,
-    @Body() updateData: Partial<CreateAppointmentDto>,
+    @Body() updateAppointmentDto: Partial<Appointment>,
   ) {
-    return this.appointmentsService.update(+id, updateData);
+    return await this.appointmentsService.update(+id, updateAppointmentDto);
   }
 
   // 4. Cancelar una cita (DELETE)

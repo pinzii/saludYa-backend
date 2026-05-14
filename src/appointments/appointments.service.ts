@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm'; //
 import { Repository } from 'typeorm'; //
 import { Appointment } from './entities/appointment.entity';
@@ -26,12 +26,19 @@ export class AppointmentsService {
   }
 
   // 3. Actualizar una cita existente
-  async update(
-    id: number,
-    updateData: Partial<CreateAppointmentDto>,
-  ): Promise<Appointment | null> {
-    await this.appointmentRepository.update(id, updateData);
-    return await this.appointmentRepository.findOneBy({ id });
+  async update(id: number, updateAppointmentDto: Partial<Appointment>) {
+    if (updateAppointmentDto.fecha === '') {
+      delete updateAppointmentDto.fecha;
+    }
+
+    const appointment = await this.appointmentRepository.preload({
+      id: id,
+      ...updateAppointmentDto,
+    });
+
+    if (!appointment) throw new NotFoundException(`Cita #${id} no encontrada`);
+
+    return this.appointmentRepository.save(appointment);
   }
 
   // 4. Eliminar una cita
