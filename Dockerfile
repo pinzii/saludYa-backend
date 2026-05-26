@@ -1,14 +1,25 @@
-# Capa 1: Compilación (Multi-stage build para no pesar en producción)
-FROM maven:3.9.6-eclipse-temurin-17 AS build
+# Capa 1: Compilación de NestJS (TypeScript -> JavaScript)
+FROM node:22-alpine AS build
 WORKDIR /app
-COPY openapi.json .
-COPY pom.xml .
-COPY src ./src
-RUN mvn clean package -DskipTests
 
-# Capa 2: Entorno de ejecución ligero
-FROM eclipse-temurin:17-jre-jammy
+# Copiamos los archivos de dependencias de Node
+COPY package*.json ./
+RUN npm install
+
+# Copiamos el resto del código del backend y compilamos
+COPY . .
+RUN npm run build
+
+# Capa 2: Entorno de ejecución ligero para producción
+FROM node:22-alpine
 WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
+
+# Copiamos solo lo necesario para que no pese el contenedor
+COPY package*.json ./
+RUN npm install --only=production
+COPY --from=build /app/dist ./dist
+
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+
+# Comando para encender el servidor de NestJS
+CMD ["node", "dist/main"]
