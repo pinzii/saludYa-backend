@@ -7,7 +7,11 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
-  app.enableCors();
+  app.enableCors({
+    origin: true, // Permite peticiones desde cualquier origen (incluyendo localhost:4200)
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true, // Importante si usas cookies o tokens de autorización
+  });
   app.setGlobalPrefix('api');
 
   // ── Swagger / OpenAPI ──────────────────────────────────────
